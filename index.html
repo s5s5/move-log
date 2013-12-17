@@ -8,6 +8,7 @@
 <script src="http://api.map.baidu.com/api?v=2.0&ak=41fbedb86441cdf625085769058871da"></script>
 <style>
 body, html,#allmap {width: 100%;height: 100%;overflow: hidden;margin:0;background-color:#000000;color:yellow;}
+button{cursor:pointer;}
 .tool{position:fixed; bottom:0; right:0;}
 .tool button{padding:10px 20px; font-size:22px; border:#000 solid 1px; -webkit-border-radius: 12px; border-radius: 12px; cursor:pointer;
     background-color: #444444;
@@ -79,7 +80,10 @@ body, html,#allmap {width: 100%;height: 100%;overflow: hidden;margin:0;backgroun
 <div id="wel" style="position:absolute; top:0; left:0; width:100%; height:100%; background-color:#fff; text-align:center; z-index:999;">
 <div class="bounce" style="margin:100px auto 30px;"></div>
 <div style="color:#000; font-size:28px;">行进记录</div>
-<div style="position:absolute; bottom:100px; width:100%;"><button id="enter" type="button" onclick="go();" style="display:none; background-color:#ff8c00; color:#fff; font-size:16px; border-width:0; padding:5px 38px;">点击进入</button> </div>
+<div style="position:absolute; bottom:100px; width:100%;">
+    <button id="enter" type="button" onclick="go();" style="display:none; background-color:#ff8c00; color:#fff; font-size:16px; border-width:0; padding:5px 38px;">点击进入</button>
+    <p><a href="https://github.com/s5s5/move-log" target="_blank">View On GitHub</a></p>
+</div>
 </div>
 <script>
 var arrPoint = [];
