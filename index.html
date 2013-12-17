@@ -1,0 +1,154 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
+<title>行进记录</title>
+<!--<script src="http://api.map.baidu.com/api?v=2.0&ak=您的密钥"></script>-->
+<script src="http://api.map.baidu.com/api?v=2.0&ak=41fbedb86441cdf625085769058871da"></script>
+<style>
+body, html,#allmap {width: 100%;height: 100%;overflow: hidden;margin:0;background-color:#000000;color:yellow;}
+.tool{position:fixed; bottom:0; right:0;}
+.tool button{padding:10px 20px; font-size:22px; border:#000 solid 1px; -webkit-border-radius: 12px; border-radius: 12px; cursor:pointer;
+    background-color: #444444;
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#444444), to(#999999));
+    background-image: -webkit-linear-gradient(top, #444444, #999999);
+    background-image:         linear-gradient(to bottom, #444444, #999999);}
+#logging{position:fixed; top:0; left:0; background-color:#fff; color:#000; font-size:22px; display:none;
+    -webkit-animation: show1 1000ms ease both infinite;
+    animation: show1 1000ms ease both infinite;
+}
+@-webkit-keyframes show1  {
+    0%{opacity: 0; -webkit-transform: scale(0.9);}
+    100% {opacity: 1; -webkit-transform: scale(1);}
+}
+@keyframes show1 {
+    0%{opacity: 0; transform: scale(0.9);}
+    100% {opacity: 1; transform: scale(1);}
+}
+.bounce{
+    position : relative;
+    width : 1.5em;
+    height : 1.5em;
+    border-radius : 50%;
+    background : -webkit-radial-gradient(top left, #EEE, #333 60%);
+    background : radial-gradient(top left, #EEE, #333 60%);
+    -webkit-animation : bounce 0.5s cubic-bezier(0.3,0.6,1,0.5) alternate infinite;
+    animation : bounce 0.5s cubic-bezier(0.3,0.6,1,0.5) alternate infinite;
+    bottom : 1em;
+    box-shadow : 0 1em 1em #DDD;
+}
+@-webkit-keyframes bounce{
+    60%{
+        top : 0.5em;
+        height : 1.5em;
+        width : 1.5em;
+        box-shadow : 0 0.5em 0.6em #CCC;
+    }
+    to{
+        top : 1em;
+        height : 1em;
+        width : 1.9em;
+        box-shadow : 0 0.6em 0.7em #CCC;
+    }
+}
+
+@keyframes bounce{
+    60%{
+        bottom : 0.5em;
+        height : 1.5em;
+        width : 1.5em;
+        box-shadow : 0 0.5em 0.6em #CCC;
+    }
+    to{
+        bottom : 0;
+        height : 1em;
+        width : 1.9em;
+        box-shadow : 0 0.6em 0.7em #CCC;
+    }
+}
+</style>
+</head>
+<body>
+<div id="allmap"></div>
+<div class="tool">
+<button type="button" onclick="logPoints();">开始</button>
+<button type="button" onclick="showPoint();">停止</button>
+</div>
+<div id="logging">记录中...</div>
+<div id="wel" style="position:absolute; top:0; left:0; width:100%; height:100%; background-color:#fff; text-align:center; z-index:999;">
+<div class="bounce" style="margin:100px auto 30px;"></div>
+<div style="color:#000; font-size:28px;">行进记录</div>
+<div style="position:absolute; bottom:100px; width:100%;"><button id="enter" type="button" onclick="go();" style="display:none; background-color:#ff8c00; color:#fff; font-size:16px; border-width:0; padding:5px 38px;">点击进入</button> </div>
+</div>
+<script>
+var arrPoint = [];
+var map = new BMap.Map("allmap");
+var mapStyle ={style : "dark"}; //设置地图风格为高端黑
+map.setMapStyle(mapStyle);
+
+var logging = document.getElementById('logging');
+var wel = document.getElementById('wel');
+var enter = document.getElementById('enter');
+
+
+//var point = new BMap.Point(100,1);
+var point = new BMap.Point(104.072307,30.663449);
+if (arrPoint.length > 0) {
+    point = arrPoint[arrPoint.length-1];
+}
+map.centerAndZoom(point,15);
+
+var geolocation = new BMap.Geolocation();
+function logPoint() { // 记录坐标
+    alert('手机自动锁定会导致停止记录\n请每隔30秒点击一次屏幕\n请点“确定”，否则停止记录\n（本提示每30秒出现一次）\n')
+    geolocation.getCurrentPosition(function(r){
+        if(this.getStatus() == BMAP_STATUS_SUCCESS){
+            arrPoint.push(r.point);
+        }
+        else {
+            alert('失败了，请将‘失败码：'+this.getStatus()+'’告诉s5s5cn@gmail.com，方便我们改进，谢谢');
+        }
+        return arrPoint;
+    },{enableHighAccuracy: true});
+    //关于状态码
+    //BMAP_STATUS_SUCCESS	检索成功。对应数值“0”。
+    //BMAP_STATUS_CITY_LIST	城市列表。对应数值“1”。
+    //BMAP_STATUS_UNKNOWN_LOCATION	位置结果未知。对应数值“2”。
+    //BMAP_STATUS_UNKNOWN_ROUTE	导航结果未知。对应数值“3”。
+    //BMAP_STATUS_INVALID_KEY	非法密钥。对应数值“4”。
+    //BMAP_STATUS_INVALID_REQUEST	非法请求。对应数值“5”。
+    //BMAP_STATUS_PERMISSION_DENIED	没有权限。对应数值“6”。(自 1.1 新增)
+    //BMAP_STATUS_SERVICE_UNAVAILABLE	服务不可用。对应数值“7”。(自 1.1 新增)
+    //BMAP_STATUS_TIMEOUT	超时。对应数值“8”。(自 1.1 新增)
+}
+function showPoint() { //绘制坐标连线
+    clearInterval(log);
+    logging.style.display = 'none';
+    if (arrPoint.length > 0) {
+        var polyline = new BMap.Polyline(arrPoint, {strokeColor:"yellow", strokeWeight:6, strokeOpacity:0.8});
+        map.addOverlay(polyline);
+//		console.log(arrPoint);
+        map.panTo(arrPoint[arrPoint.length-1],18);
+        alert('如果您移动距离小于500米\n将有可能看不到行进路线\n看看吧！')
+    } else {
+        alert('您没有移动，没有记录到点！')
+    }
+}
+var log;
+function logPoints() {
+    alert('请同意获取您的地理位置');
+    logPoint();
+    log = setInterval(logPoint,30000);
+    logging.style.display = 'block';
+}
+function go() {
+    wel.style.display = 'none';
+}
+function showgo() {
+    enter.style.display = 'inline-block';
+}
+setTimeout(showgo,3333);
+</script>
+</body>
+</html>
